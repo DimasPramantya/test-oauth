@@ -15,7 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 CLIENT_SECRET_FILE = 'calendar_credentials.json'
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
-REDIRECT_URI = 'http://localhost:8000/oauthcallback'
+REDIRECT_URI = 'https://oauth-a5ey42wesa-et.a.run.app/oauthcallback'
 JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
 app.add_middleware(SessionMiddleware, secret_key="your_super_secret_key")
