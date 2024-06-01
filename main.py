@@ -10,9 +10,18 @@ from datetime import datetime, timedelta
 from google.oauth2.credentials import Credentials
 from pydantic import BaseModel
 from typing import Optional
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Set up CORS to allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
