@@ -47,14 +47,14 @@ async def exchange_code(code: str):
         raise HTTPException(status_code=400, detail=f"Token exchange failed: {str(e)}")
 
 @app.get('/calendar')
-async def testGoogleCalendar(token: str = Depends(oauth2_scheme)):
-    user = verify_token(token)
+async def testGoogleCalendar():
+    user = verify_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6InlhMjkuYTBBWG9vQ2dzck1BdXEzQmtyNy1vWG9WUFpjVFJrT3ExQUNIdUpHTTJuWGphcDhjUzd3Q2NzNnJJX2FocHVjSzVGamZ0NDNBTUtmaUZ2TmtncS1OOVFvMkVwQ0FYNkdFb01YRlQ2OUhwcjdxZUpVVEY2MzNCTV9zQ3dMSU5sTlBGSzFnTW1pOXhndHpmcU1yeVg4ZUlwT1AxV1drRjA0SzJfTzRHQWFDZ1lLQVp3U0FSTVNGUUhHWDJNaVh0dllRSnRlS0JabHRxaElxMWpLdFEwMTcxIiwicmVmcmVzaF90b2tlbiI6bnVsbCwidG9rZW5fdXJpIjoiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLCJjbGllbnRfaWQiOiI2NTc2MzA3MTI3ODAtMnUzN2FpOGZnbTlpbzVvbWJlOW1sdHM3aDM0NmcwcDAuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJjbGllbnRfc2VjcmV0IjoiR09DU1BYLUxLZndSOEJYTkN0VXFwSXZPSnFMQV9rZTFBZ3giLCJzY29wZXMiOlsiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vYXV0aC9jYWxlbmRhci5ldmVudHMiXSwiZXhwIjoxNzE3MjYyNzEyfQ.zLJld6jlBnVaOSu_pyH25X5uPxhIQOprpL7mD-oyRk0")
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
 
     creds = Credentials(
         token=user['token'],
-        refresh_token=user.get('refresh_token'),
+        refresh_token=None,
         token_uri=user['token_uri'],
         client_id=user['client_id'],
         client_secret=user['client_secret'],
