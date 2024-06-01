@@ -27,7 +27,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 CLIENT_SECRET_FILE = 'calendar_credentials.json'
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
-REDIRECT_URI = 'https://oauth-a5ey42wesa-et.a.run.app/oauthcallback'
+REDIRECT_URI = 'https://665b46e22a9143cd55a24c29--rococo-florentine-b63072.netlify.app/'
 JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
 
@@ -35,7 +35,7 @@ JWT_ALGORITHM = "HS256"
 async def exchange_code(code: str):
     try:
         flow = Flow.from_client_secrets_file(
-            CLIENT_SECRET_FILE, scopes=SCOPES, redirect_uri=REDIRECT_URI
+            CLIENT_SECRET_FILE, scopes=SCOPES
         )
         flow.fetch_token(code=code)
 
