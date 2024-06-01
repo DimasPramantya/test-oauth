@@ -11,6 +11,8 @@ from google.oauth2.credentials import Credentials
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from typing import Optional
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
@@ -20,7 +22,10 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 REDIRECT_URI = 'https://oauth-a5ey42wesa-et.a.run.app/oauthcallback'
 JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
+
 app.add_middleware(SessionMiddleware, secret_key="your_super_secret_key")
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # Adjust allowed_hosts as needed
+app.add_middleware(HTTPSRedirectMiddleware)  # Redirect all HTTP requests to HTTPS
 
 class TokenData(BaseModel):
     token: str
