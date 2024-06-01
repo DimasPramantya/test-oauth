@@ -20,6 +20,8 @@ JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
 app.add_middleware(SessionMiddleware, secret_key="your_super_secret_key")
 @app.get('/authorize')
+
+
 async def authorize(request: Request):
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
     flow.redirect_uri = REDIRECT_URI
