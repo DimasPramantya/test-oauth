@@ -35,7 +35,7 @@ JWT_ALGORITHM = "HS256"
 async def exchange_code(code: str):
     try:
         flow = Flow.from_client_secrets_file(
-            CLIENT_SECRET_FILE, scopes=SCOPES
+            CLIENT_SECRET_FILE, scopes=SCOPES,  redirect_uri=REDIRECT_URI
         )
         flow.fetch_token(code=code)
 
