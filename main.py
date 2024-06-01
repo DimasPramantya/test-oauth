@@ -65,7 +65,7 @@ async def testGoogleCalendar():
     now = datetime.now()
     event_start = now + timedelta(days=1)
     event_end = event_start + timedelta(hours=2)
-    attendee_email = "igkdimas@gmail.com"
+    attendee_email = "thesyamarcella@gmail.com"
     event = {
         "summary": "Test",
         "start": {"dateTime": event_start.isoformat() + 'Z', "timeZone": "America/New_York"},
