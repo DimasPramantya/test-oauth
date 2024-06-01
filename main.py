@@ -28,7 +28,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 CLIENT_SECRET_FILE = 'calendar_credentials.json'
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 REDIRECT_URI = 'https://665b46e22a9143cd55a24c29--rococo-florentine-b63072.netlify.app/'
-JWT_SECRET_KEY = secrets.token_urlsafe(32)
+JWT_SECRET_KEY = "asdjhasdhkjashdjkas"
 JWT_ALGORITHM = "HS256"
 
 @app.post('/exchange')
