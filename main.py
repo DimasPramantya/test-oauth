@@ -1,20 +1,19 @@
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.responses import RedirectResponse
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 from googleapiclient.discovery import build
 import secrets
 import jwt  
 import time  
 from datetime import datetime, timedelta
 from google.oauth2.credentials import Credentials
-from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from typing import Optional
-from starlette.middleware.trustedhost import TrustedHostMiddleware
-from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+
 
 app = FastAPI()
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 CLIENT_SECRET_FILE = 'calendar_credentials.json'
@@ -23,58 +22,30 @@ REDIRECT_URI = 'https://oauth-a5ey42wesa-et.a.run.app/oauthcallback'
 JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
 
-app.add_middleware(SessionMiddleware, secret_key="your_super_secret_key")
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # Adjust allowed_hosts as needed
-app.add_middleware(HTTPSRedirectMiddleware)  # Redirect all HTTP requests to HTTPS
+class AuthCodeRequest(BaseModel):
+    code: str
 
-class TokenData(BaseModel):
-    token: str
-    refresh_token: Optional[str]
-    token_uri: str
-    client_id: str
-    client_secret: str
-    scopes: list
+@app.post('/exchange')
+async def exchange_code(auth_request: AuthCodeRequest):
+    try:
+        flow = Flow.from_client_secrets_file(
+            CLIENT_SECRET_FILE, scopes=SCOPES, redirect_uri=REDIRECT_URI
+        )
+        flow.fetch_token(code=auth_request.code)
 
-@app.get('/authorize')
-async def authorize(request: Request):
-    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
-    flow.redirect_uri = REDIRECT_URI
+        credentials = flow.credentials
+        token = generate_token(credentials)
 
-    # Generate the authorization URL and extract the state
-    authorization_url, state = flow.authorization_url(
-        access_type='offline', include_granted_scopes='true'
-    ) 
-
-    # Store the state in the session
-    request.session["state"] = state
-
-    return RedirectResponse(authorization_url)
-
-@app.get('/oauthcallback')
-async def oauth2callback(request: Request):
-    if request.query_params.get('state') != request.session.get("state"):
-        raise HTTPException(status_code=400, detail="Invalid state parameter")
-    
-    flow = InstalledAppFlow.from_client_secrets_file(
-        CLIENT_SECRET_FILE, SCOPES, state=request.query_params.get('state')
-    )
-    flow.redirect_uri = REDIRECT_URI
-
-    authorization_response = str(request.url)
-    flow.fetch_token(authorization_response=authorization_response)
-    
-    # Store credentials in JWT token
-    credentials = flow.credentials
-    token = generate_token(credentials)
-    
-    return {"access_token": token, "token_type": "bearer"}
+        return {"access_token": token, "token_type": "bearer"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Token exchange failed: {str(e)}")
 
 @app.get('/calendar')
 async def testGoogleCalendar(token: str = Depends(oauth2_scheme)):
     user = verify_token(token)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+
     creds = Credentials(
         token=user['token'],
         refresh_token=user.get('refresh_token'),
@@ -83,7 +54,7 @@ async def testGoogleCalendar(token: str = Depends(oauth2_scheme)):
         client_secret=user['client_secret'],
         scopes=user['scopes']
     )
-    
+
     service = build("calendar", "v3", credentials=creds)
     now = datetime.now()
     event_start = now + timedelta(days=1)
@@ -114,7 +85,7 @@ def generate_token(credentials):
 def verify_token(token):
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        return payload  
+        return payload
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:
