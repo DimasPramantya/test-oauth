@@ -31,16 +31,13 @@ REDIRECT_URI = 'https://oauth-a5ey42wesa-et.a.run.app/oauthcallback'
 JWT_SECRET_KEY = secrets.token_urlsafe(32)
 JWT_ALGORITHM = "HS256"
 
-class AuthCodeRequest(BaseModel):
-    code: str
-
 @app.post('/exchange')
-async def exchange_code(auth_request: AuthCodeRequest):
+async def exchange_code(code: str):
     try:
         flow = Flow.from_client_secrets_file(
             CLIENT_SECRET_FILE, scopes=SCOPES, redirect_uri=REDIRECT_URI
         )
-        flow.fetch_token(code=auth_request.code)
+        flow.fetch_token(code=code)
 
         credentials = flow.credentials
         token = generate_token(credentials)
